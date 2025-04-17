@@ -2,14 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const qrcode = require("qrcode-terminal");
-const {
-  makeWASocket,
-  useMultiFileAuthState,
-  DisconnectReason,
-} = require("@whiskeysockets/baileys");
-const { Configuration, OpenAIApi } = require("openai");
-const { Boom } = require("@hapi/boom");
 const { GoogleGenAI } = require("@google/genai");
 
 const ai = new GoogleGenAI({
