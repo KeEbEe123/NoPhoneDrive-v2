@@ -18,7 +18,7 @@ class AiService : IntentService("AiService") {
         val text = intent?.getStringExtra("text") ?: return
 
         try {
-            val url = URL("https://939b-106-0-37-94.ngrok-free.app/api/check-emergency") // Replace with the actual URL
+            val url = URL("https://nophonedrive-v2.onrender.com/api/check-emergency") // Replace with the actual URL
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8")

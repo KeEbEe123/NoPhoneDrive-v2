@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
     };
 
     await http.post(
-      Uri.parse("https://939b-106-0-37-94.ngrok-free.app/api/log-dnd"),
+      Uri.parse("https://nophonedrive-v2.onrender.com/api/log-dnd"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(body),
     );

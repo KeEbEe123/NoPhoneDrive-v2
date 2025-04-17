@@ -61,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> fetchUserDetails() async {
     final String backendUrl =
-        'https://939b-106-0-37-94.ngrok-free.app/api/users/email/${widget.email}';
+        'https://nophonedrive-v2.onrender.com/api/users/email/${widget.email}';
 
     try {
       final response = await http.get(Uri.parse(backendUrl));

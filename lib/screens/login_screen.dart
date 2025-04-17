@@ -11,7 +11,7 @@ class LoginScreen extends StatelessWidget {
   Future<void> saveUserToDatabase(Map<String, dynamic> userData) async {
     try {
       final response = await http.post(
-        Uri.parse('https://939b-106-0-37-94.ngrok-free.app/api/users'),
+        Uri.parse('https://nophonedrive-v2.onrender.com/api/users'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(userData),
       );

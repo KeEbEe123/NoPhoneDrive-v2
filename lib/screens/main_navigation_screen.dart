@@ -39,7 +39,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         key: _bottomNavigationKey,
         index: _page,
         height: 60,
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         color: Colors.white,
         buttonBackgroundColor: Colors.blueAccent,
         animationDuration: const Duration(milliseconds: 300),
