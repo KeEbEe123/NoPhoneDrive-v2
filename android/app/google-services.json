@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1032671455981",
+    "project_id": "nophonedrive-bd412",
+    "storage_bucket": "nophonedrive-bd412.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1032671455981:android:548ab9af1b2884e279bae4",
+        "android_client_info": {
+          "package_name": "com.example.npdf"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1032671455981-dennbaaeumclp6f4ks3fh1g9mbmo05r8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.npdf",
+            "certificate_hash": "83e00d27e2c8e1fb2df930c0b6081ad987af6120"
+          }
+        },
+        {
+          "client_id": "1032671455981-o92i9rhi2fvbbj3sdnohts02jjovfo5t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYxyARt_UtlQ7IRU64eXfVFK4wfp8c4xc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1032671455981-o92i9rhi2fvbbj3sdnohts02jjovfo5t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
