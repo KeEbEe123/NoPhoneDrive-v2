@@ -3,9 +3,10 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const { GoogleGenAI } = require("@google/genai");
+require("dotenv").config();
 
 const ai = new GoogleGenAI({
-  apiKey: "AIzaSyCPxeCEnXyl-QedvQx_nnHrPGZpjLowxpo",
+  apiKey: process.env.GOOGLE_API_KEY,
 });
 
 const app = express();
@@ -19,9 +20,7 @@ app.use((req, res, next) => {
 });
 
 // ======================= DATABASE SETUP =========================
-mongoose.connect(
-  "mongodb+srv://keertank:tomcatisbad123@cluster0.azk2l.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-);
+mongoose.connect(process.env.MONGODB_URI);
 
 // ======================= SCHEMAS =========================
 const UserSchema = new mongoose.Schema({
