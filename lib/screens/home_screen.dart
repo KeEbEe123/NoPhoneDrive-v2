@@ -3,6 +3,7 @@ import '../services/dnd_service.dart';
 import '../services/location_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   final String email;
@@ -25,20 +26,32 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _checkDndPermission();
+    _loadDriveModeState();
+    _checkDndPermission(); // just check silently
     _updateSpeed();
   }
 
-  Future<void> _checkDndPermission() async {
+  Future<void> _loadDriveModeState() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userDriveMode = prefs.getBool('driveMode') ?? false;
+    });
+  }
+
+  Future<void> _saveDriveModeState(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('driveMode', value);
+  }
+
+  Future<void> _checkDndPermission({bool showDialog = false}) async {
     bool permission = await _dndService.hasDndPermission();
     setState(() {
       _hasDndPermission = permission;
     });
 
-    if (!permission) {
-      _dndService.requestPermissions(context).then((_) {
-        _checkDndPermission();
-      });
+    if (!permission && showDialog) {
+      await _dndService.requestPermissions(context);
+      _checkDndPermission(); // Re-check after user action
     }
   }
 
@@ -89,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
     };
 
     await http.post(
-      Uri.parse("https://nophonedrive-v2.onrender.com/api/log-dnd"),
+      Uri.parse("https://msme.mlritcie.in/api/log-dnd"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(body),
     );
@@ -99,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _userDriveMode = value;
     });
+    _saveDriveModeState(value);
     _updateDndStatus(_currentSpeed);
   }
 
@@ -194,10 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (!_hasDndPermission) ...[
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed:
-                    () => _dndService.requestPermissions(context).then((_) {
-                      _checkDndPermission();
-                    }),
+                onPressed: () => _checkDndPermission(showDialog: true),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
                   padding: const EdgeInsets.symmetric(vertical: 16),

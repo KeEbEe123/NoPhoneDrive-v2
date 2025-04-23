@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/google_auth_service.dart';
+import 'login_screen.dart';
 
 TextEditingController _controller = TextEditingController();
 String _replyMessage =
@@ -21,11 +23,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? photoUrl;
   bool isLoading = true;
 
+  // Switch states
+  bool emergencyNotifications = true;
+  bool autoEnableDriveMode = false;
+  bool strictMode = true;
+
+  final GoogleAuthService _authService = GoogleAuthService();
+
   @override
   void initState() {
     super.initState();
     fetchUserDetails();
     _loadCustomReply();
+    _loadSwitchPrefs();
+  }
+
+  Future<void> _loadSwitchPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      emergencyNotifications = prefs.getBool('emergencyNotifications') ?? true;
+      autoEnableDriveMode = prefs.getBool('autoEnableDriveMode') ?? false;
+      strictMode = prefs.getBool('strictMode') ?? true;
+    });
+  }
+
+  Future<void> _updatePref(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
+  }
+
+  void _signOut() async {
+    await _authService.signOut();
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        (route) => false,
+      );
+    }
   }
 
   void _showMessageEditDialog(BuildContext context) async {
@@ -61,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> fetchUserDetails() async {
     final String backendUrl =
-        'https://nophonedrive-v2.onrender.com/api/users/email/${widget.email}';
+        'https://msme.mlritcie.in/api/users/email/${widget.email}';
 
     try {
       final response = await http.get(Uri.parse(backendUrl));
@@ -96,6 +131,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            onPressed: _signOut,
+            tooltip: 'Sign Out',
+          ),
+        ],
       ),
       body:
           isLoading
@@ -115,15 +157,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       isValueLink: true,
                     ),
                   ),
-
                   const SizedBox(height: 32),
                   _buildSectionTitle('Notifications'),
                   _buildSwitchCard(
                     icon: Icons.notifications_active,
                     title: 'Emergency Notifications',
                     description: 'Allow emergency calls to come through',
-                    value: true,
-                    onChanged: (val) {},
+                    value: emergencyNotifications,
+                    onChanged: (val) {
+                      setState(() => emergencyNotifications = val);
+                      _updatePref('emergencyNotifications', val);
+                    },
                   ),
                   const SizedBox(height: 32),
                   _buildSectionTitle('Drive Mode'),
@@ -132,8 +176,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: 'Auto-Enable',
                     description:
                         'Automatically enable drive mode when motion is detected',
-                    value: false,
-                    onChanged: (val) {},
+                    value: autoEnableDriveMode,
+                    onChanged: (val) {
+                      setState(() => autoEnableDriveMode = val);
+                      _updatePref('autoEnableDriveMode', val);
+                    },
                   ),
                   const SizedBox(height: 16),
                   _buildSwitchCard(
@@ -141,8 +188,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: 'Strict Mode',
                     description:
                         'Prevent drive mode from being disabled while in motion',
-                    value: true,
-                    onChanged: (val) {},
+                    value: strictMode,
+                    onChanged: (val) {
+                      setState(() => strictMode = val);
+                      _updatePref('strictMode', val);
+                    },
                   ),
                 ],
               ),
