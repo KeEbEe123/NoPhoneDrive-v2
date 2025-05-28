@@ -47,11 +47,24 @@ class AiService : IntentService("AiService") {
                     nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
                     Thread.sleep(500)
 
-                    val toneGen = ToneGenerator(AudioManager.STREAM_ALARM, 100)
-                    repeat(3) {
-                        toneGen.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 1000)
-                        Thread.sleep(1500)
-                    }
+                    val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+// Save current volume
+val originalVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
+
+// Set alarm stream volume to maximum
+val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+audioManager.setStreamVolume(AudioManager.STREAM_ALARM, maxVolume, 0)
+
+val toneGen = ToneGenerator(AudioManager.STREAM_ALARM, 100)
+repeat(3) {
+    toneGen.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 1000)
+    Thread.sleep(1500)
+}
+toneGen.release()
+
+// Restore original volume
+audioManager.setStreamVolume(AudioManager.STREAM_ALARM, originalVolume, 0)
 
                     nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
                     Log.d("🔕 AiService", "DND restored after alert.")

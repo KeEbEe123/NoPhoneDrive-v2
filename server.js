@@ -78,13 +78,13 @@ app.post("/api/log-dnd", async (req, res) => {
 
     if (action === "on") {
       logs.push({
-        turnedOnAt: new Date(timestamp),
+        turnedOnAt: new Date(parseInt(timestamp)),
         locationOn: location,
       });
     } else if (action === "off" && logs.length > 0) {
       const last = logs[logs.length - 1];
       if (!last.turnedOffAt) {
-        last.turnedOffAt = new Date(timestamp);
+        last.turnedOffAt = new Date(parseInt(timestamp));
         last.locationOff = location;
       }
     }

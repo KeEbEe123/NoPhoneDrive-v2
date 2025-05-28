@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final LocationService _locationService = LocationService();
 
   bool _hasDndPermission = false;
-  bool _userDriveMode = false; // user toggle
+  bool _userDriveMode = false;
   bool _dndActive = false;
   double _currentSpeed = 0.0;
   final double speedThreshold = 10.0;
@@ -26,21 +26,25 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadDriveModeState();
-    _checkDndPermission(); // just check silently
+    _checkDndPermission();
     _updateSpeed();
   }
 
-  Future<void> _loadDriveModeState() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userDriveMode = prefs.getBool('driveMode') ?? false;
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncUiWithDndState(); // sync UI state when returning to this screen
   }
 
-  Future<void> _saveDriveModeState(bool value) async {
+  Future<void> _syncUiWithDndState() async {
+    bool isDndActuallyOn = await _dndService.isDndActive();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('driveMode', value);
+    bool toggleState = prefs.getBool('driveMode') ?? false;
+
+    setState(() {
+      _dndActive = isDndActuallyOn;
+      _userDriveMode = toggleState;
+    });
   }
 
   Future<void> _checkDndPermission({bool showDialog = false}) async {
@@ -51,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!permission && showDialog) {
       await _dndService.requestPermissions(context);
-      _checkDndPermission(); // Re-check after user action
+      _checkDndPermission();
     }
   }
 
@@ -65,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
         _updateDndStatus(speed);
       }
-
       await Future.delayed(const Duration(seconds: 2));
     }
   }
@@ -89,14 +92,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _logDndEvent(String action) async {
-    final location =
-        await _locationService
-            .getCurrentLocation(); // returns {latitude, longitude}
-    final timestamp = DateTime.now().toIso8601String();
+    final location = await _locationService.getCurrentLocation();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
 
     final body = {
-      "email": widget.email, // make sure you store this in the app (from login)
-      "action": action, // "on" or "off"
+      "email": widget.email,
+      "action": action,
       "timestamp": timestamp,
       "location": location,
     };
@@ -108,11 +109,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _toggleDriveMode(bool value) {
+  void _toggleDriveMode(bool value) async {
     setState(() {
       _userDriveMode = value;
     });
-    _saveDriveModeState(value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('driveMode', value);
     _updateDndStatus(_currentSpeed);
   }
 
